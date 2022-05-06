@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -126,8 +128,7 @@ class HomeState extends State<HomePage> {
 
   Future<File?> pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['db'],
+
     );
     File? file;
     if (result != null && result.files.single.path != null) {

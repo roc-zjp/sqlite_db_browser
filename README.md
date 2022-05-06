@@ -1,6 +1,7 @@
 # sqlite_db_browser
 
 A new Flutter project.
+跨平台sqlite查看编辑工具
 
 ## Getting Started
 
@@ -14,3 +15,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+**还没开始就结束了，macos,ios写入数据库失败，原因未知**

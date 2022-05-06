@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqlite_db_browser/pages/HomePage.dart';
 
 import 'common/consts.dart';
 
 void main() {
-  sqfliteFfiInit();
   runApp(const MyApp());
 }
 

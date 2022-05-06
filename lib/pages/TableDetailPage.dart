@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:sqlite_db_browser/common/consts.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
@@ -52,7 +54,8 @@ class TableDetailState extends State<TableDetailPage> {
   Widget _buildTableInfo() {
     logger.d("TableDetailPage build");
     var _dataSources = TableDataSource(datas, (index) {
-      showEditDialog(datas[index]);
+      showEditDialog(
+          widget.bean.tableName, datas[index], widget.bean.primaryKey!);
     }, selectAble: widget.bean.primaryKey != null);
     return SingleChildScrollView(
       primary: false,
@@ -69,7 +72,7 @@ class TableDetailState extends State<TableDetailPage> {
             IconButton(onPressed: () {}, icon: const Icon(Icons.delete)),
           IconButton(
               onPressed: () {
-                showEditDialog(null);
+                // showEditDialog(null);
               },
               icon: const Icon(Icons.add))
         ],
@@ -93,10 +96,14 @@ class TableDetailState extends State<TableDetailPage> {
     );
   }
 
-  Future showEditDialog(Map<String, Object?>? map) {
+  Future showEditDialog(
+      String tableName, Map<String, Object?>? dataRead, String primaryKey) {
     var items = List<Widget>.empty(growable: true);
-    map?.forEach((key, value) {
-      items.add(_buildSheetItem(key, value));
+    var data = Map<String, Object?>.from(dataRead!);
+    data.forEach((key, value) {
+      items.add(_buildSheetItem(key, value, (key, newValue) {
+        data[key] = newValue;
+      }));
     });
     return showModalBottomSheet(
         context: context,
@@ -113,10 +120,21 @@ class TableDetailState extends State<TableDetailPage> {
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text("取消")),
-                    TextButton(onPressed: () {
-
-                    }, child: const Text("确定"))
+                        child: TextButton(
+                          child: const Text('取消'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        )),
+                    TextButton(
+                        onPressed: () {
+                          LocalDb.instance
+                              .update(tableName, data, primaryKey)
+                              .then((value) {
+                            Navigator.of(context).pop();
+                          });
+                        },
+                        child: const Text("确定"))
                   ],
                 )
               ],
@@ -125,9 +143,12 @@ class TableDetailState extends State<TableDetailPage> {
         });
   }
 
-  Widget _buildSheetItem(String key, Object? value) {
+  void func = (String newvalue) {};
+
+  Widget _buildSheetItem(String key, Object? value, Function func) {
     TextEditingController controller =
         TextEditingController(text: value.toString());
+
     return Container(
       decoration: const BoxDecoration(),
       padding: const EdgeInsets.all(10),
@@ -140,6 +161,9 @@ class TableDetailState extends State<TableDetailPage> {
           Expanded(
               flex: 1,
               child: TextField(
+                onChanged: ((value) {
+                  func(key, value);
+                }),
                 controller: controller,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
