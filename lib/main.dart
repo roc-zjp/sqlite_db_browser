@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sqlite_db_browser/pages/HomePage.dart';
 
 import 'common/consts.dart';
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const HomePage(),
+      builder: EasyLoading.init(),
     );
   }
 }

@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sqlite_db_browser/common/consts.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
@@ -48,14 +49,13 @@ class TableDetailState extends State<TableDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildTableInfo();
+    return _buildTableInfo(widget.bean.tableName, widget.bean.primaryKey!);
   }
 
-  Widget _buildTableInfo() {
+  Widget _buildTableInfo(String tableName, String primaryKey) {
     logger.d("TableDetailPage build");
-    var _dataSources = TableDataSource(datas, (index) {
-      showEditDialog(
-          widget.bean.tableName, datas[index], widget.bean.primaryKey!);
+    var _dataSources = TableDataSource(datas, widget.bean.primaryKey!, (index) {
+      showEditDialog(widget.bean, datas[index]);
     }, selectAble: widget.bean.primaryKey != null);
     return SingleChildScrollView(
       primary: false,
@@ -69,10 +69,17 @@ class TableDetailState extends State<TableDetailPage> {
         source: _dataSources,
         actions: [
           if (widget.bean.primaryKey != null)
-            IconButton(onPressed: () {}, icon: const Icon(Icons.delete)),
+            IconButton(
+                onPressed: () {
+                  LocalDb.instance
+                      .deleteAllByPrimaryKeys(
+                          tableName, primaryKey, List.from(_dataSources.selectedList))
+                      .then((value) => EasyLoading.showToast('成功删除$value条数据'));
+                },
+                icon: const Icon(Icons.delete)),
           IconButton(
               onPressed: () {
-                // showEditDialog(null);
+                showEditDialog(widget.bean, null);
               },
               icon: const Icon(Icons.add))
         ],
@@ -96,15 +103,11 @@ class TableDetailState extends State<TableDetailPage> {
     );
   }
 
-  Future showEditDialog(
-      String tableName, Map<String, Object?>? dataRead, String primaryKey) {
-    var items = List<Widget>.empty(growable: true);
-    var data = Map<String, Object?>.from(dataRead!);
-    data.forEach((key, value) {
-      items.add(_buildSheetItem(key, value, (key, newValue) {
-        data[key] = newValue;
-      }));
-    });
+  Future showEditDialog(TableBean bean, Map<String, Object?>? dataRead) {
+    var map = (dataRead == null)
+        ? <String, Object?>{}
+        : Map<String, Object?>.from(dataRead);
+
     return showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -112,7 +115,14 @@ class TableDetailState extends State<TableDetailPage> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                ...items,
+                ...bean.columns
+                    .map((columnInfo) => _buildSheetItem(
+                            columnInfo.columnName,
+                            map[columnInfo.columnName],
+                            columnInfo.type, (key, newValue) {
+                          map[key] = newValue;
+                        }))
+                    .toList(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -128,11 +138,20 @@ class TableDetailState extends State<TableDetailPage> {
                         )),
                     TextButton(
                         onPressed: () {
-                          LocalDb.instance
-                              .update(tableName, data, primaryKey)
-                              .then((value) {
-                            Navigator.of(context).pop();
-                          });
+                          if (dataRead != null) {
+                            LocalDb.instance
+                                .update(bean.tableName, map, bean.primaryKey!)
+                                .then((value) {
+                              Navigator.of(context).pop();
+                            });
+                          } else {
+                            LocalDb.instance
+                                .insert(bean.tableName, map)
+                                .then((value) {
+                              EasyLoading.showToast('成功添加一条信息，ID为$value')
+                                  .then((value) => Navigator.of(context).pop());
+                            });
+                          }
                         },
                         child: const Text("确定"))
                   ],
@@ -143,11 +162,12 @@ class TableDetailState extends State<TableDetailPage> {
         });
   }
 
-  void func = (String newvalue) {};
+  void func = (String newValue) {};
 
-  Widget _buildSheetItem(String key, Object? value, Function func) {
+  Widget _buildSheetItem(
+      String key, Object? value, String type, Function func) {
     TextEditingController controller =
-        TextEditingController(text: value.toString());
+        TextEditingController(text: value == null ? "" : value.toString());
 
     return Container(
       decoration: const BoxDecoration(),
@@ -179,12 +199,14 @@ typedef OnClick = Function(int index);
 
 class TableDataSource extends DataTableSource {
   final List<Map<String, Object?>> datas;
-  List<int> selectedList = List.empty(growable: true);
+  List<dynamic> selectedList = List.empty(growable: true);
   bool selectAble = false;
   final OnClick onClick;
+  final String primaryKey;
 
   TableDataSource(
     this.datas,
+    this.primaryKey,
     this.onClick, {
     this.selectAble = false,
   });
@@ -203,16 +225,16 @@ class TableDataSource extends DataTableSource {
         ? DataRow.byIndex(
             index: index,
             cells: cells,
-            selected: selectedList.contains(index),
+            selected: selectedList.contains(datas[index][primaryKey]),
             onLongPress: () {
               onClick(index);
             },
             onSelectChanged: (selected) {
               if (selected == null) return;
               if (selected) {
-                selectedList.add(index);
+                selectedList.add(datas[index][primaryKey]);
               } else {
-                selectedList.remove(index);
+                selectedList.remove(datas[index][primaryKey]);
               }
               notifyListeners();
             })
@@ -233,8 +255,8 @@ class TableDataSource extends DataTableSource {
 
   void selectAll() {
     selectedList.clear();
-    for (var i = 0; i < datas.length; i++) {
-      selectedList.add(i);
+    for (var element in datas) {
+      selectedList.add(element[primaryKey]);
     }
     notifyListeners();
   }
