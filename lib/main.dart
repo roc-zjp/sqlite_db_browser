@@ -1,6 +1,13 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:sqlite_db_browser/pages/HomePage.dart';
+import 'package:sqlite_db_browser/pages/desktop_layout.dart';
+import 'package:sqlite_db_browser/pages/mobile_layout.dart';
+import 'package:sqlite_db_browser/repositories/local_db.dart';
+import 'package:sqlite_db_browser/repositories/table_baen.dart';
 
 import 'common/consts.dart';
 
@@ -20,8 +27,67 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomePage(),
+      home:
+          LayoutBuilder(builder: ((context, constraints) => const MainPage())),
       builder: EasyLoading.init(),
     );
+  }
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({Key? key}) : super(key: key);
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  List<TableInfo> tables = List.empty();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(APP_NAME),
+        actions: [
+          IconButton(
+              onPressed: () {
+                onOpenDatabase();
+              },
+              icon: const Icon(Icons.open_in_browser))
+        ],
+      ),
+      body:
+          (kIsWeb || Platform.isMacOS || Platform.isLinux || Platform.isWindows)
+              ? DesktopLayout(
+                  tables: tables,
+                )
+              : MobileLayout(
+                  tables: tables,
+                ),
+    );
+  }
+
+  void onOpenDatabase() async {
+    var file = await pickFile();
+    if (file == null) {
+      return;
+    }
+    await LocalDb.instance.initDb(file.path);
+    var results = await LocalDb.instance.queryAllTables();
+    setState(() {
+      tables = results;
+    });
+  }
+
+  Future<File?> pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    File? file;
+    if (result != null && result.files.single.path != null) {
+      file = File(result.files.single.path!);
+      debugPrint("filepath =${file.path}");
+    } else {
+      debugPrint("没有选择文件");
+    }
+    return file;
   }
 }

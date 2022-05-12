@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
 
 class DatabaseModel extends ChangeNotifier {
-  final List<TableBean> _tables = [];
+  final List<TableInfo> _tables = [];
 
   // 禁止改变购物车里的商品信息
-  UnmodifiableListView<TableBean> get tabels => UnmodifiableListView(_tables);
+  UnmodifiableListView<TableInfo> get tabels => UnmodifiableListView(_tables);
 
-  void add(TableBean bean) {
+  void add(TableInfo bean) {
     _tables.add(bean);
     notifyListeners();
   }
