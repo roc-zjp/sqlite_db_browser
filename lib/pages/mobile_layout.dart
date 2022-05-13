@@ -10,7 +10,7 @@ class MobileLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.red,
+      color: const Color(0xff383F51),
       child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: TableList(

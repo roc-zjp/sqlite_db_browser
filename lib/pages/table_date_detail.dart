@@ -6,20 +6,10 @@ import 'package:sqlite_db_browser/common/consts.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
 
-typedef OnUpdate = void Function(Object o);
-typedef OnDelete = void Function(Object o);
-typedef OnAdd = void Function(Object o);
-typedef OnQuery = void Function(Object o);
-
 class TableDetailPage extends StatefulWidget {
   final TableInfo bean;
-  final OnUpdate? onUpdate;
-  final OnDelete? onDelete;
-  final OnQuery? onQuery;
 
-  const TableDetailPage(this.bean,
-      {Key? key, this.onUpdate, this.onDelete, this.onQuery})
-      : super(key: key);
+  const TableDetailPage(this.bean, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -34,17 +24,7 @@ class TableDetailState extends State<TableDetailPage> {
   @override
   void initState() {
     super.initState();
-    LocalDb.instance
-        .queryAll(widget.bean.tableName)
-        .then((value) => setState(() {
-              List<Map<String, Object?>> writeableDatas =
-                  List.empty(growable: true);
-              for (var element in value) {
-                writeableDatas.add(Map.from(element));
-              }
-              datas = writeableDatas;
-            
-            }));
+    refreshDatas();
   }
 
   @override
@@ -53,52 +33,54 @@ class TableDetailState extends State<TableDetailPage> {
   }
 
   Widget _buildTableInfo(TableInfo info) {
-    logger.d("TableDetailPage build");
     var _dataSources = TableDataSource(datas, info.primaryKey, (index) {
-      showEditDialog(info, datas[index]);
+      showEditDialog(info, datas[index]).then((value) => refreshDatas());
     }, selectAble: info.primaryKey != null);
+
     return SingleChildScrollView(
       primary: false,
-      child: PaginatedDataTable(
-        columns: widget.bean.columns
-            .map((e) => DataColumn(
-                    label: Center(
-                  child: Text(e.columnName),
-                )))
-            .toList(),
-        source: _dataSources,
-        actions: [
-          if (info.primaryKey != null)
+      child: SizedBox(
+        width: double.infinity,
+        child: PaginatedDataTable(
+          columns: widget.bean.columns
+              .map((e) => DataColumn(
+                      label: Center(
+                    child: Text(e.columnName),
+                  )))
+              .toList(growable: true),
+          source: _dataSources,
+          actions: [
+            if (info.primaryKey != null)
+              IconButton(
+                  onPressed: () {
+                    deleteDatas(info.tableName, info.primaryKey!,
+                        List.from(_dataSources.selectedList));
+                  },
+                  icon: const Icon(Icons.delete)),
             IconButton(
                 onPressed: () {
-                  LocalDb.instance
-                      .deleteAllByPrimaryKeys(info.tableName, info.primaryKey!,
-                          List.from(_dataSources.selectedList))
-                      .then((value) => EasyLoading.showToast('成功删除$value条数据'));
+                  showEditDialog(widget.bean, null)
+                      .then((value) => refreshDatas());
                 },
-                icon: const Icon(Icons.delete)),
-          IconButton(
-              onPressed: () {
-                showEditDialog(widget.bean, null);
-              },
-              icon: const Icon(Icons.add))
-        ],
-        header: const Text("数据"),
-        availableRowsPerPage: const [10, 20, 50, 100],
-        rowsPerPage: _rowPage,
-        onRowsPerPageChanged: (value) {
-          setState(() {
-            _rowPage = value ?? _rowPage;
-          });
-        },
-        onSelectAll: (selected) {
-          if (selected == null) return;
-          if (selected) {
-            _dataSources.selectAll();
-          } else {
-            _dataSources.clearAll();
-          }
-        },
+                icon: const Icon(Icons.add))
+          ],
+          header: const Text("数据"),
+          availableRowsPerPage: const [10, 20, 50, 100],
+          rowsPerPage: _rowPage,
+          onRowsPerPageChanged: (value) {
+            setState(() {
+              _rowPage = value ?? _rowPage;
+            });
+          },
+          onSelectAll: (selected) {
+            if (selected == null) return;
+            if (selected) {
+              _dataSources.selectAll();
+            } else {
+              _dataSources.clearAll();
+            }
+          },
+        ),
       ),
     );
   }
@@ -138,20 +120,7 @@ class TableDetailState extends State<TableDetailPage> {
                         )),
                     TextButton(
                         onPressed: () {
-                          if (dataRead != null) {
-                            LocalDb.instance
-                                .update(bean.tableName, map, bean.primaryKey!)
-                                .then((value) {
-                              Navigator.of(context).pop();
-                            });
-                          } else {
-                            LocalDb.instance
-                                .insert(bean.tableName, map)
-                                .then((value) {
-                              EasyLoading.showToast('成功添加一条信息，ID为$value')
-                                  .then((value) => Navigator.of(context).pop());
-                            });
-                          }
+                          updateOrInsertData(bean, map);
                         },
                         child: const Text("确定"))
                   ],
@@ -160,6 +129,44 @@ class TableDetailState extends State<TableDetailPage> {
             ),
           );
         });
+  }
+
+  Future refreshDatas() async {
+    var readDatas = await LocalDb.instance.queryAll(widget.bean.tableName);
+    var writeDatas = List<Map<String, Object?>>.from(readDatas);
+    setState(() {
+      datas = writeDatas;
+    });
+  }
+
+  void deleteDatas(String tableName, String primaryKey, List list) {
+    LocalDb.instance
+        .deleteAllByPrimaryKeys(tableName, primaryKey, List.from(list))
+        .then((value) => EasyLoading.showToast('成功删除$value条数据')
+            .then((value) => refreshDatas()));
+  }
+
+  void updateOrInsertData(TableInfo bean, Map<String, Object?> map) {
+    if (map.isNotEmpty) {
+      LocalDb.instance
+          .update(bean.tableName, map, bean.primaryKey!)
+          .then((value) {
+        Navigator.of(context).pop();
+      }).onError((error, stackTrace) {
+        logger.e("on error:${error.toString()}");
+        EasyLoading.showError("添加数据失败")
+            .then((value) => Navigator.of(context).pop());
+      });
+    } else {
+      LocalDb.instance.insert(bean.tableName, map).then((value) {
+        EasyLoading.showToast('成功添加一条信息，ID为$value')
+            .then((value) => Navigator.of(context).pop());
+      }).onError((error, stackTrace) {
+        logger.e("on error:${error.toString()}");
+        EasyLoading.showError("添加数据失败")
+            .then((value) => Navigator.of(context).pop());
+      });
+    }
   }
 
   void func = (String newValue) {};
@@ -223,7 +230,9 @@ class TableDataSource extends DataTableSource {
     return DataRow.byIndex(
         index: index,
         cells: cells,
-        selected: selectedList.contains(datas[index][primaryKey]),
+        selected: selectAble
+            ? selectedList.contains(datas[index][primaryKey])
+            : false,
         onLongPress: () {
           onClick(index);
         },

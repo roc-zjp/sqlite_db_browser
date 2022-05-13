@@ -10,12 +10,8 @@ class TableList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return tables == null
-        ? Container(
-            height: 200,
-          )
-        : ListView(
-            children: [for (var info in tables!) _buildTableItem(info)],
-          );
+        ? Container(height: 200)
+        : ListView(children: [for (var info in tables!) _buildTableItem(info)]);
   }
 
   Widget _buildTableItem(TableInfo bean) {
@@ -26,14 +22,15 @@ class TableList extends StatelessWidget {
       },
       child: Container(
         alignment: Alignment.centerLeft,
-        decoration: const BoxDecoration(color: Colors.grey),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               height: 50,
               decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(topRight: Radius.circular(25),bottomRight: Radius.circular(25))
-              ),
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(25),
+                      bottomRight: Radius.circular(25))),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
@@ -46,7 +43,7 @@ class TableList extends StatelessWidget {
                     padding: const EdgeInsets.all(10),
                     child: Text(
                       bean.tableName,
-                      style: const TextStyle(color: Colors.black, fontSize: 20),
+                      style: const TextStyle(color: Colors.white, fontSize: 24),
                       maxLines: 1,
                       textAlign: TextAlign.start,
                     ),
@@ -57,11 +54,31 @@ class TableList extends StatelessWidget {
             Offstage(
               offstage: !bean.expanded,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: bean.columns
-                    .map((item) => Text(
-                          item.columnName,
-                          style: const TextStyle(
-                              color: Colors.black38, fontSize: 18),
+                    .map((item) => SizedBox(
+                          height: 40,
+                          child: Row(
+                            children: [
+                              const Padding(padding: EdgeInsets.only(left: 30)),
+                              Container(
+                                width: 10,
+                                height: 10,
+                                decoration: const BoxDecoration(
+                                    color: Colors.grey,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5))),
+                              ),
+                              const Padding(padding: EdgeInsets.only(left: 10)),
+                              Text(
+                                item.columnName,
+                                textAlign: TextAlign.start,
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 20),
+                              )
+                            ],
+                          ),
                         ))
                     .toList(),
               ),

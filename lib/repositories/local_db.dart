@@ -1,7 +1,8 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_db_browser/repositories/column_info.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
 import 'package:logger/logger.dart';
+import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class LocalDb {
   var logger = Logger(
@@ -21,7 +22,9 @@ class LocalDb {
   Future<void> initDb(String databasePath) async {
     if (_databasePath == databasePath && _database != null) return;
     _databasePath = databasePath;
-    _database = await openDatabase(databasePath);
+    sqfliteFfiInit();
+    var databaseFactory = databaseFactoryFfi;
+    _database = await databaseFactory.openDatabase(databasePath);
   }
 
   Future<void> closeDb() async {
