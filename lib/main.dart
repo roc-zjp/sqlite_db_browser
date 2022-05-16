@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 import 'package:sqlite_db_browser/pages/desktop_layout.dart';
 import 'package:sqlite_db_browser/pages/mobile_layout.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
@@ -82,11 +83,12 @@ class _MainPageState extends State<MainPage> {
   Future<File?> pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     File? file;
+
     if (result != null && result.files.single.path != null) {
       file = File(result.files.single.path!);
-      debugPrint("filepath =${file.path}");
+      logger.d("filepath =${file.path}");
     } else {
-      debugPrint("没有选择文件");
+      logger.d("没有选择文件");
     }
     return file;
   }
