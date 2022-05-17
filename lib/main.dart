@@ -50,11 +50,14 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         title: const Text(APP_NAME),
         actions: [
-          IconButton(
-              onPressed: () {
-                onOpenDatabase();
-              },
-              icon: const Icon(Icons.open_in_browser))
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: IconButton(
+                onPressed: () {
+                  onOpenDatabase();
+                },
+                icon: Image.asset("assets/file-open.png")),
+          )
         ],
       ),
       body:
