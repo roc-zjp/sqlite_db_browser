@@ -4,11 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:provider/provider.dart';
 
 import 'package:sqlite_db_browser/pages/desktop_layout.dart';
 import 'package:sqlite_db_browser/pages/mobile_layout.dart';
+import 'package:sqlite_db_browser/repositories/database_viewmodel.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
-import 'package:sqlite_db_browser/repositories/table_baen.dart';
 
 import 'common/consts.dart';
 
@@ -43,7 +44,8 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  List<TableInfo> tables = List.empty();
+  final databaseModel = DataBaseViewModel();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,14 +62,23 @@ class _MainPageState extends State<MainPage> {
           )
         ],
       ),
-      body:
-          (kIsWeb || Platform.isMacOS || Platform.isLinux || Platform.isWindows)
+      body: ChangeNotifierProvider(
+        create: (_) => databaseModel,
+        child: Consumer<DataBaseViewModel>(
+          builder: (context, value, child) => (kIsWeb ||
+                  Platform.isMacOS ||
+                  Platform.isLinux ||
+                  Platform.isWindows)
               ? DesktopLayout(
-                  tables: tables,
+                  tables: value.tables,
+                  selectedTableInfo: value.selectedTableInfo,
+                  onTableChange: (info) {
+                    databaseModel.onTableSelected(info);
+                  },
                 )
-              : MobileLayout(
-                  tables: tables,
-                ),
+              : MobileLayout(tables: value.tables),
+        ),
+      ),
     );
   }
 
@@ -76,17 +87,17 @@ class _MainPageState extends State<MainPage> {
     if (file == null) {
       return;
     }
+
     await LocalDb.instance.initDb(file.path);
     var results = await LocalDb.instance.queryAllTables();
     setState(() {
-      tables = results;
+      databaseModel.onDatabaseChange(results);
     });
   }
 
   Future<File?> pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     File? file;
-
     if (result != null && result.files.single.path != null) {
       file = File(result.files.single.path!);
       logger.d("filepath =${file.path}");

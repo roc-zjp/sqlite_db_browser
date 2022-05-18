@@ -1,5 +1,3 @@
-
-
 import 'package:sqlite_db_browser/repositories/column_info.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
 import 'package:logger/logger.dart';
@@ -16,6 +14,8 @@ class LocalDb {
   LocalDb._();
 
   Database get db => _database!;
+
+  String? get dataPath => _databasePath;
 
   static LocalDb instance = LocalDb._();
 
