@@ -71,6 +71,7 @@ class _DesktopLayoutState extends State<DesktopLayout> {
             child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: TableList(
+                  expandable: true,
                   tables: widget.tables,
                   onTap: (TableInfo info) {
                     setState(() {

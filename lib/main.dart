@@ -4,7 +4,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:sqlite_db_browser/pages/create_database.dart';
 
 import 'package:sqlite_db_browser/pages/desktop_layout.dart';
 import 'package:sqlite_db_browser/pages/mobile_layout.dart';
@@ -12,6 +14,7 @@ import 'package:sqlite_db_browser/repositories/database_viewmodel.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
 
 import 'common/consts.dart';
+import 'common/edit_dialog.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,10 +58,35 @@ class _MainPageState extends State<MainPage> {
           MouseRegion(
             cursor: SystemMouseCursors.click,
             child: IconButton(
+                tooltip: "打开数据库",
                 onPressed: () {
                   onOpenDatabase();
                 },
                 icon: Image.asset("assets/file-open.png")),
+          ),
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: IconButton(
+                tooltip: "新建数据库",
+                onPressed: () {
+                  
+                  showDialog<String>(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: ((context) {
+                        return EditDialog(
+                          labelText: "数据库名称",
+                          hintText: "请输入数据库名称",
+                        );
+                      })).then((value) {
+                    if (value == null || value.isEmpty) {
+                      return;
+                    }
+                    logger.d("数据库名称$value");
+                    createDabase(value);
+                  });
+                },
+                icon: Image.asset("assets/new_file.png")),
           )
         ],
       ),
@@ -80,6 +108,21 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
     );
+  }
+
+  Future<void> createDabase(String databaseName) async {
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String appDocPath = appDocDir.path;
+    String dbPath = "$appDocPath/$databaseName.db";
+    var file = File(dbPath);
+
+    var exists = await file.exists();
+    if (exists) {
+      EasyLoading.showToast("数据库创建失败，数据库已存在！");
+      return;
+    }
+    await file.create();
+    LocalDb.instance.initDb(dbPath);
   }
 
   void onOpenDatabase() async {

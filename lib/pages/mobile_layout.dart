@@ -14,6 +14,7 @@ class MobileLayout extends StatelessWidget {
       child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: TableList(
+            expandable: false,
             tables: tables,
             onTap: (TableInfo info) {
               Navigator.of(context).push(MaterialPageRoute(builder: (context) {

@@ -1,4 +1,4 @@
-import 'package:sqlite_db_browser/repositories/column_info.dart';
+import 'package:sqlite_db_browser/model/column_info.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
 import 'package:logger/logger.dart';
 import 'package:sqflite_common/sqlite_api.dart';
@@ -13,7 +13,7 @@ class LocalDb {
 
   LocalDb._();
 
-  Database get db => _database!;
+  Database? get db => _database;
 
   String? get dataPath => _databasePath;
 
@@ -27,6 +27,7 @@ class LocalDb {
     sqfliteFfiInit();
     var databaseFactory = databaseFactoryFfi;
     _database = await databaseFactory.openDatabase(databasePath);
+    logger.d("数据库初始化完成");
   }
 
   Future<void> closeDb() async {
@@ -35,7 +36,7 @@ class LocalDb {
   }
 
   Future<List<TableInfo>> queryAllTables() async {
-    List<Map<String, Object?>> results = await db
+    List<Map<String, Object?>> results = await db!
         .query("sqlite_master", where: 'type = ?', whereArgs: ['table']);
     List<TableInfo> tables = List.empty(growable: true);
 
@@ -50,7 +51,7 @@ class LocalDb {
 
   Future<TableInfo> queryTableInfo(String tableName) async {
     List<Map<String, Object?>> results =
-        await db.rawQuery("PRAGMA table_info ([$tableName])");
+        await db!.rawQuery("PRAGMA table_info ([$tableName])");
     List<ColumnInfo> columns = List.empty(growable: true);
     TableInfo info = TableInfo(tableName);
 
@@ -61,15 +62,27 @@ class LocalDb {
         info.primaryKey = element['name'].toString();
       }
       columns.add(ColumnInfo(
-          element['name'].toString(), element['type'].toString(),
+          columnName: element['name'].toString(),
+          type: element['type'].toString(),
           defaultValue: element['dflt_value'].toString()));
       info.columns = columns;
     }
     return info;
   }
 
+  Future<bool> createTable(String createSql) async {
+    bool result = await db!
+        .execute(createSql)
+        .then((value) => true)
+        .onError((error, stackTrace) {
+      logger.e(error);
+      return false;
+    });
+    return result;
+  }
+
   Future<List<Map<String, Object?>>> queryAll(String tableName) async {
-    List<Map<String, Object?>> results = await db.query(tableName);
+    List<Map<String, Object?>> results = await db!.query(tableName);
     // for (var element in results) {
     //   logger.d(element);
     // }
@@ -78,7 +91,7 @@ class LocalDb {
 
   Future<int> deleteAllByPrimaryKeys(
       String tableName, String primaryKey, List<Object?>? selecteds) async {
-    var batch = db.batch();
+    var batch = db!.batch();
     selecteds?.forEach((element) {
       batch.delete(tableName, where: '$primaryKey = ?', whereArgs: [element]);
     });
@@ -88,14 +101,14 @@ class LocalDb {
 
   Future<int> update(
       String tableName, Map<String, Object?> map, String primaryKey) async {
-    int result = await db.update(tableName, map,
+    int result = await db!.update(tableName, map,
         where: '$primaryKey = ?', whereArgs: [map[primaryKey]]);
     logger.d("result=$result");
     return result;
   }
 
   Future<int> insert(String tableName, Map<String, Object?> map) async {
-    int result = await db.insert(tableName, map);
+    int result = await db!.insert(tableName, map);
     logger.d("result=$result");
     return result;
   }

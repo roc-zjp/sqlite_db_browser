@@ -1,4 +1,4 @@
-import 'package:sqlite_db_browser/repositories/column_info.dart';
+import 'package:sqlite_db_browser/model/column_info.dart';
 
 class TableInfo {
   List<ColumnInfo> columns = List.empty();
