@@ -34,7 +34,8 @@ class TableDetailState extends State<TableDetailPage> {
 
   Widget _buildTableInfo(TableInfo info) {
     var _dataSources = TableDataSource(datas, info.primaryKey, (index) {
-      showEditDialog(info, datas[index]).then((value) => refreshDatas());
+      showEditDialog(info, datas[index], update: true)
+          .then((value) => refreshDatas());
     }, selectAble: info.primaryKey != null);
 
     return SingleChildScrollView(
@@ -59,7 +60,7 @@ class TableDetailState extends State<TableDetailPage> {
                   icon: const Icon(Icons.delete)),
             IconButton(
                 onPressed: () {
-                  showEditDialog(widget.bean, null)
+                  showEditDialog(widget.bean, null, update: false)
                       .then((value) => refreshDatas());
                 },
                 icon: const Icon(Icons.add))
@@ -85,47 +86,53 @@ class TableDetailState extends State<TableDetailPage> {
     );
   }
 
-  Future showEditDialog(TableInfo bean, Map<String, Object?>? dataRead) {
+  Future showEditDialog(TableInfo bean, Map<String, Object?>? dataRead,
+      {bool update = false}) {
     var map = (dataRead == null)
         ? <String, Object?>{}
         : Map<String, Object?>.from(dataRead);
 
     return showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (context) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                ...bean.columns
-                    .map((columnInfo) => _buildSheetItem(
-                            columnInfo.columnName,
-                            map[columnInfo.columnName],
-                            columnInfo.type, (key, newValue) {
-                          map[key] = newValue;
-                        }))
-                    .toList(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: TextButton(
-                          child: const Text('取消'),
+          return AnimatedPadding(
+            padding: MediaQuery.of(context).viewInsets,
+            duration: const Duration(milliseconds: 100),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  ...bean.columns
+                      .map((columnInfo) => _buildSheetItem(
+                              columnInfo.columnName,
+                              map[columnInfo.columnName],
+                              columnInfo.type, (key, newValue) {
+                            map[key] = newValue;
+                          }))
+                      .toList(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
-                        )),
-                    TextButton(
-                        onPressed: () {
-                          updateOrInsertData(bean, map);
-                        },
-                        child: const Text("确定"))
-                  ],
-                )
-              ],
+                          child: TextButton(
+                            child: const Text('取消'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          )),
+                      TextButton(
+                          onPressed: () {
+                            updateOrInsertData(bean, map, update);
+                          },
+                          child: const Text("确定"))
+                    ],
+                  )
+                ],
+              ),
             ),
           );
         });
@@ -146,8 +153,9 @@ class TableDetailState extends State<TableDetailPage> {
             .then((value) => refreshDatas()));
   }
 
-  void updateOrInsertData(TableInfo bean, Map<String, Object?> map) {
-    if (map.isNotEmpty) {
+  void updateOrInsertData(
+      TableInfo bean, Map<String, Object?> map, bool update) {
+    if (update) {
       LocalDb.instance
           .update(bean.tableName, map, bean.primaryKey!)
           .then((value) {

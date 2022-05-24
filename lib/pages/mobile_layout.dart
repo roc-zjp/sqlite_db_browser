@@ -6,7 +6,12 @@ import '../repositories/table_baen.dart';
 
 class MobileLayout extends StatelessWidget {
   final List<TableInfo> tables;
-  const MobileLayout({Key? key, required this.tables}) : super(key: key);
+  final Function() onCreateNewTable;
+
+  const MobileLayout(
+      {Key? key, required this.tables, required this.onCreateNewTable})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -24,6 +29,7 @@ class MobileLayout extends StatelessWidget {
                 );
               }));
             },
+            onCreateNewTable: onCreateNewTable,
           )),
     );
   }

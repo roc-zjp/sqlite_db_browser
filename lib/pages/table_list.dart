@@ -7,12 +7,18 @@ import 'create_database.dart';
 class TableList extends StatelessWidget {
   final List<TableInfo>? tables;
   final Function(TableInfo) onTap;
+  final Function() onCreateNewTable;
 
   final bool expandable;
 
   const TableList(
-      {Key? key, this.tables, required this.expandable, required this.onTap})
+      {Key? key,
+      this.tables,
+      required this.expandable,
+      required this.onTap,
+      required this.onCreateNewTable})
       : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return tables == null
@@ -34,8 +40,11 @@ class TableList extends StatelessWidget {
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10)))),
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const NewDatabasePage()));
+                          Navigator.of(context)
+                              .push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NewDatabasePage()))
+                              .then((value) => onCreateNewTable());
                         },
                         child: const SizedBox(
                           width: double.infinity,

@@ -13,12 +13,14 @@ class DesktopLayout extends StatefulWidget {
   final List<TableInfo> tables;
   final TableInfo? selectedTableInfo;
   final Function(TableInfo) onTableChange;
+  final Function() onCreateNewTable;
 
   const DesktopLayout(
       {Key? key,
       required this.tables,
       this.selectedTableInfo,
-      required this.onTableChange})
+      required this.onTableChange,
+      required this.onCreateNewTable})
       : super(key: key);
 
   @override
@@ -78,6 +80,7 @@ class _DesktopLayoutState extends State<DesktopLayout> {
                       widget.onTableChange(info);
                     });
                   },
+                  onCreateNewTable: widget.onCreateNewTable,
                 )),
           ),
           Expanded(

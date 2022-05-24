@@ -69,7 +69,6 @@ class _MainPageState extends State<MainPage> {
             child: IconButton(
                 tooltip: "新建数据库",
                 onPressed: () {
-                  
                   showDialog<String>(
                       context: context,
                       barrierDismissible: false,
@@ -103,16 +102,29 @@ class _MainPageState extends State<MainPage> {
                   onTableChange: (info) {
                     databaseModel.onTableSelected(info);
                   },
+                  onCreateNewTable: onCreateNewTable,
                 )
-              : MobileLayout(tables: value.tables),
+              : MobileLayout(
+                  tables: value.tables,
+                  onCreateNewTable: onCreateNewTable,
+                ),
         ),
       ),
     );
   }
 
+  void onCreateNewTable() async {
+    var results = await LocalDb.instance.queryAllTables();
+    setState(() {
+      databaseModel.onDatabaseChange(results);
+    });
+  }
+
   Future<void> createDabase(String databaseName) async {
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String appDocPath = appDocDir.path;
+    // String dbPath = join(appDocPath, 'demo.db');
+
     String dbPath = "$appDocPath/$databaseName.db";
     var file = File(dbPath);
 
@@ -121,8 +133,11 @@ class _MainPageState extends State<MainPage> {
       EasyLoading.showToast("数据库创建失败，数据库已存在！");
       return;
     }
-    await file.create();
-    LocalDb.instance.initDb(dbPath);
+    await LocalDb.instance.initDb(dbPath);
+    var results = await LocalDb.instance.queryAllTables();
+    setState(() {
+      databaseModel.onDatabaseChange(results);
+    });
   }
 
   void onOpenDatabase() async {

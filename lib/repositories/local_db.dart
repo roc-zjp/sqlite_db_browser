@@ -26,7 +26,12 @@ class LocalDb {
     _databasePath = databasePath;
     sqfliteFfiInit();
     var databaseFactory = databaseFactoryFfi;
-    _database = await databaseFactory.openDatabase(databasePath);
+    var options = OpenDatabaseOptions(version:1,onCreate: (Database db, int version) {
+      logger.d("ondatabase create");
+    }, onOpen: (db) {
+      logger.d("ondatabase open");
+    });
+    _database = await databaseFactory.openDatabase(databasePath,options: options);
     logger.d("数据库初始化完成");
   }
 

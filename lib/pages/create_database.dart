@@ -19,6 +19,7 @@ class NewDatabasePage extends StatefulWidget {
 class _NewDatabasePageState extends State<NewDatabasePage> {
   final tableColumnInfos = List<ColumnInfo>.empty(growable: true);
   static const double typeWidth = 100.0;
+
   @override
   void initState() {
     super.initState();
@@ -100,11 +101,11 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
           SizedBox(
             width: 50,
             child: Checkbox(
-                value: info.isNull,
+                value: info.isNotNull,
                 onChanged: (v) {
                   if (v != null) {
                     setState(() {
-                      info.isNull = v;
+                      info.isNotNull = v;
                     });
                   }
                 }),
@@ -171,12 +172,16 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
     });
   }
 
-  void createDatabase(String tableName) {
+  void createDatabase(String tableName) async{
     StringBuffer buffer = StringBuffer();
     buffer.write("CREATE TABLE $tableName (");
-    for (var element in tableColumnInfos) {
+
+    for(var i=0;i<tableColumnInfos.length;i++){
+      var element= tableColumnInfos[i];
       buffer.write(element.toString());
-      buffer.write(",");
+      if(i!=tableColumnInfos.length-1){
+        buffer.write(",");
+      }
     }
     buffer.write(")");
     logger.d(buffer.toString());

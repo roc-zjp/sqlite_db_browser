@@ -2,7 +2,7 @@ class ColumnInfo {
   String columnName;
   String type;
   String defaultValue = "";
-  bool isNull = false;
+  bool isNotNull = false;
   bool primaryKey = false;
   bool unique = false;
   bool autoIncrement = false;
@@ -15,6 +15,25 @@ class ColumnInfo {
     buffer.write("$columnName ");
     buffer.write("$type ");
 
-    return "$columnName $type $defaultValue";
+    if(primaryKey){
+      buffer.write("PRIMARY KEY ");
+    }
+
+    if(autoIncrement){
+      buffer.write("AUTOINCREMENT ");
+    }
+
+    if(isNotNull){
+      buffer.write("NOT NULL ");
+    }
+
+
+    if(unique){
+      buffer.write("UNIQUE ");
+    }
+
+
+
+    return buffer.toString();
   }
 }
