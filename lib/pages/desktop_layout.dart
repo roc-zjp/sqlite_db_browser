@@ -36,64 +36,35 @@ class _DesktopLayoutState extends State<DesktopLayout> {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformMenuBar(
-      menus: [
-        PlatformMenu(label: "Flutter API Sample", menus: [
-          PlatformMenuItemGroup(
-            members: <MenuItem>[
-              PlatformMenuItem(
-                label: 'About',
-                onSelected: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) {
-                    return const AboutPage();
-                  }));
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Container(
+          color: const Color(0xff383F51),
+          width: 260,
+          child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: TableList(
+                expandable: true,
+                tables: widget.tables,
+                onTap: (TableInfo info) {
+                  setState(() {
+                    widget.onTableChange(info);
+                  });
                 },
-              )
-            ],
-          ),
-          PlatformMenuItemGroup(
-            members: <MenuItem>[
-              PlatformMenuItem(
-                label: 'Quick Sqlite Browser',
-                onSelected: () {
-                  exit(0);
-                },
-              )
-            ],
-          ),
-        ])
+                onCreateNewTable: widget.onCreateNewTable,
+              )),
+        ),
+        Expanded(
+            child: widget.selectedTableInfo == null
+                ? Container(
+                    color: const Color(0xffeaeaea),
+                  )
+                : TableDetailPage(
+                    widget.selectedTableInfo!,
+                    key: ValueKey(widget.selectedTableInfo?.tableName),
+                  ))
       ],
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            color: const Color(0xff383F51),
-            width: 260,
-            child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: TableList(
-                  expandable: true,
-                  tables: widget.tables,
-                  onTap: (TableInfo info) {
-                    setState(() {
-                      widget.onTableChange(info);
-                    });
-                  },
-                  onCreateNewTable: widget.onCreateNewTable,
-                )),
-          ),
-          Expanded(
-              child: widget.selectedTableInfo == null
-                  ? Container(
-                      color: const Color(0xffeaeaea),
-                    )
-                  : TableDetailPage(
-                      widget.selectedTableInfo!,
-                      key: ValueKey(widget.selectedTableInfo?.tableName),
-                    ))
-        ],
-      ),
     );
   }
 }

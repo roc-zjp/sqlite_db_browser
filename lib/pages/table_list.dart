@@ -49,7 +49,7 @@ class TableList extends StatelessWidget {
                         child: const SizedBox(
                           width: double.infinity,
                           child: Text(
-                            "新建数据库",
+                            "新建表",
                             style: TextStyle(fontSize: 20),
                             textAlign: TextAlign.center,
                           ),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:sqlite_db_browser/pages/about_me.dart';
 import 'package:sqlite_db_browser/pages/create_database.dart';
 
 import 'package:sqlite_db_browser/pages/desktop_layout.dart';
@@ -69,21 +70,7 @@ class _MainPageState extends State<MainPage> {
             child: IconButton(
                 tooltip: "新建数据库",
                 onPressed: () {
-                  showDialog<String>(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: ((context) {
-                        return EditDialog(
-                          labelText: "数据库名称",
-                          hintText: "请输入数据库名称",
-                        );
-                      })).then((value) {
-                    if (value == null || value.isEmpty) {
-                      return;
-                    }
-                    logger.d("数据库名称$value");
-                    createDabase(value);
-                  });
+                  createDatabase();
                 },
                 icon: Image.asset("assets/new_file.png")),
           )
@@ -96,14 +83,70 @@ class _MainPageState extends State<MainPage> {
                   Platform.isMacOS ||
                   Platform.isLinux ||
                   Platform.isWindows)
-              ? DesktopLayout(
-                  tables: value.tables,
-                  selectedTableInfo: value.selectedTableInfo,
-                  onTableChange: (info) {
-                    databaseModel.onTableSelected(info);
-                  },
-                  onCreateNewTable: onCreateNewTable,
-                )
+              ? PlatformMenuBar(
+                  body: DesktopLayout(
+                    tables: value.tables,
+                    selectedTableInfo: value.selectedTableInfo,
+                    onTableChange: (info) {
+                      databaseModel.onTableSelected(info);
+                    },
+                    onCreateNewTable: onCreateNewTable,
+                  ),
+                  menus: [
+                      PlatformMenu(label: APP_NAME, menus: [
+                        PlatformMenuItemGroup(
+                          members: <MenuItem>[
+                            PlatformMenuItem(
+                              label: 'About',
+                              onSelected: () {
+                                Navigator.of(context)
+                                    .push(MaterialPageRoute(builder: (context) {
+                                  return const AboutPage();
+                                }));
+                              },
+                            )
+                          ],
+                        ),
+                        PlatformMenuItemGroup(
+                          members: <MenuItem>[
+                            PlatformMenuItem(
+                              label: 'Quick Sqlite Browser',
+                              onSelected: () {
+                                exit(0);
+                              },
+                            )
+                          ],
+                        ),
+                      ]),
+                      PlatformMenu(label: "新建", menus: [
+                        PlatformMenuItemGroup(
+                          members: <MenuItem>[
+                            PlatformMenuItem(
+                              label: '新建数据库',
+                              onSelected: () {
+                                createDatabase();
+                              },
+                            )
+                          ],
+                        ),
+                        PlatformMenuItemGroup(
+                          members: <MenuItem>[
+                            PlatformMenuItem(
+                              label: '新建表',
+                              onSelected: () {
+                                if(LocalDb.instance.db!=null){
+                                  Navigator.of(context)
+                                      .push(MaterialPageRoute(
+                                      builder: (context) =>
+                                      const NewDatabasePage()))
+                                      .then((value) => onCreateNewTable());
+                                }
+                              },
+                            )
+                          ],
+                        ),
+                      ])
+                    ])
               : MobileLayout(
                   tables: value.tables,
                   onCreateNewTable: onCreateNewTable,
@@ -113,27 +156,42 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  void onCreateNewTable() async {
-    var results = await LocalDb.instance.queryAllTables();
-    setState(() {
-      databaseModel.onDatabaseChange(results);
+  Future createDatabase() {
+    return showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: ((context) {
+          return EditDialog(
+            labelText: "数据库名称",
+            hintText: "请输入数据库名称",
+          );
+        })).then((value) async {
+      if (value == null || value.isEmpty) {
+        EasyLoading.showToast("请输入数据库名称");
+        return;
+      }
+      logger.d("数据库名称$value");
+
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String appDocPath = appDocDir.path;
+
+      String dbPath = "$appDocPath/$value.db";
+      var file = File(dbPath);
+
+      var exists = await file.exists();
+      if (exists) {
+        EasyLoading.showToast("数据库创建失败，数据库已存在！");
+        return;
+      }
+      await LocalDb.instance.initDb(dbPath);
+      var results = await LocalDb.instance.queryAllTables();
+      setState(() {
+        databaseModel.onDatabaseChange(results);
+      });
     });
   }
 
-  Future<void> createDabase(String databaseName) async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath = appDocDir.path;
-    // String dbPath = join(appDocPath, 'demo.db');
-
-    String dbPath = "$appDocPath/$databaseName.db";
-    var file = File(dbPath);
-
-    var exists = await file.exists();
-    if (exists) {
-      EasyLoading.showToast("数据库创建失败，数据库已存在！");
-      return;
-    }
-    await LocalDb.instance.initDb(dbPath);
+  void onCreateNewTable() async {
     var results = await LocalDb.instance.queryAllTables();
     setState(() {
       databaseModel.onDatabaseChange(results);

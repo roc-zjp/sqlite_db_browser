@@ -15,7 +15,7 @@ class EditDialog extends StatelessWidget {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10))),
       child: SizedBox(
-          height: 230,
+          height: 210,
           width: 200,
           child: Column(
             children: [
