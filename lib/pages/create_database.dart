@@ -18,7 +18,8 @@ class NewDatabasePage extends StatefulWidget {
 
 class _NewDatabasePageState extends State<NewDatabasePage> {
   final tableColumnInfos = List<ColumnInfo>.empty(growable: true);
-  static const double typeWidth = 100.0;
+  static const double typeWidth = 90.0;
+  static const double itemWidth = 40.0;
 
   @override
   void initState() {
@@ -76,30 +77,42 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
         children: [
           Expanded(
             flex: 1,
-            child: TextField(
-              controller: controller,
-              onChanged: (value) {
-                setState(() {
-                  info.columnName = value;
-                });
-              },
+            child: Padding(
+              padding:
+                  const EdgeInsets.only(left: 5, top: 10, bottom: 10, right: 5),
+              child: TextField(
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: "名称"),
+                controller: controller,
+                onChanged: (value) {
+                  setState(() {
+                    info.columnName = value;
+                  });
+                },
+              ),
+            ),
+          ),
+          Container(
+            // ignore: prefer_const_constructors
+            decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                border: Border.all(color: const Color(0xFFF8F8F8), width: 0.5)),
+            width: typeWidth,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                  value: info.type,
+                  items: _buildFieldTypeItem(),
+                  onChanged: (type) {
+                    if (type != null) {
+                      setState(() {
+                        info.type = type;
+                      });
+                    }
+                  }),
             ),
           ),
           SizedBox(
-            width: typeWidth,
-            child: DropdownButton<String>(
-                value: info.type,
-                items: _buildFieldTypeItem(),
-                onChanged: (type) {
-                  if (type != null) {
-                    setState(() {
-                      info.type = type;
-                    });
-                  }
-                }),
-          ),
-          SizedBox(
-            width: 50,
+            width: itemWidth,
             child: Checkbox(
                 value: info.isNotNull,
                 onChanged: (v) {
@@ -111,7 +124,7 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
                 }),
           ),
           SizedBox(
-            width: 50,
+            width: itemWidth,
             child: Checkbox(
                 value: info.primaryKey,
                 onChanged: (v) {
@@ -123,7 +136,7 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
                 }),
           ),
           SizedBox(
-            width: 50,
+            width: itemWidth,
             child: Checkbox(
                 value: info.unique,
                 onChanged: (v) {
@@ -135,7 +148,7 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
                 }),
           ),
           SizedBox(
-            width: 50,
+            width: itemWidth,
             child: Checkbox(
                 value: info.autoIncrement,
                 onChanged: (v) {
@@ -172,14 +185,14 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
     });
   }
 
-  void createDatabase(String tableName) async{
+  void createDatabase(String tableName) async {
     StringBuffer buffer = StringBuffer();
     buffer.write("CREATE TABLE $tableName (");
 
-    for(var i=0;i<tableColumnInfos.length;i++){
-      var element= tableColumnInfos[i];
+    for (var i = 0; i < tableColumnInfos.length; i++) {
+      var element = tableColumnInfos[i];
       buffer.write(element.toString());
-      if(i!=tableColumnInfos.length-1){
+      if (i != tableColumnInfos.length - 1) {
         buffer.write(",");
       }
     }
@@ -228,28 +241,28 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
             ),
           ),
           SizedBox(
-            width: 50,
+            width: itemWidth,
             child: Text(
               "非空",
               textAlign: TextAlign.center,
             ),
           ),
           SizedBox(
-            width: 50,
+            width: itemWidth,
             child: Text(
               "主键",
               textAlign: TextAlign.center,
             ),
           ),
           SizedBox(
-            width: 50,
+            width: itemWidth,
             child: Text(
               "唯一",
               textAlign: TextAlign.center,
             ),
           ),
           SizedBox(
-            width: 50,
+            width: itemWidth,
             child: Text(
               "自增",
               textAlign: TextAlign.center,

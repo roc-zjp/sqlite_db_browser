@@ -7,9 +7,10 @@ import '../repositories/table_baen.dart';
 class MobileLayout extends StatelessWidget {
   final List<TableInfo> tables;
   final Function() onCreateNewTable;
+   final Function() onDeleteTable;
 
   const MobileLayout(
-      {Key? key, required this.tables, required this.onCreateNewTable})
+      {Key? key, required this.tables, required this.onCreateNewTable,required this.onDeleteTable})
       : super(key: key);
 
   @override
@@ -29,6 +30,7 @@ class MobileLayout extends StatelessWidget {
                 );
               }));
             },
+            onDeleteTable: onDeleteTable,
             onCreateNewTable: onCreateNewTable,
           )),
     );

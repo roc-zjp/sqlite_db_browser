@@ -90,7 +90,8 @@ class _MainPageState extends State<MainPage> {
                     onTableChange: (info) {
                       databaseModel.onTableSelected(info);
                     },
-                    onCreateNewTable: onCreateNewTable,
+                    onDeleteTable: refreshData,
+                    onCreateNewTable: refreshData,
                   ),
                   menus: [
                       PlatformMenu(label: APP_NAME, menus: [
@@ -134,12 +135,12 @@ class _MainPageState extends State<MainPage> {
                             PlatformMenuItem(
                               label: '新建表',
                               onSelected: () {
-                                if(LocalDb.instance.db!=null){
+                                if (LocalDb.instance.db != null) {
                                   Navigator.of(context)
                                       .push(MaterialPageRoute(
-                                      builder: (context) =>
-                                      const NewDatabasePage()))
-                                      .then((value) => onCreateNewTable());
+                                          builder: (context) =>
+                                              const NewDatabasePage()))
+                                      .then((value) => refreshData());
                                 }
                               },
                             )
@@ -149,7 +150,8 @@ class _MainPageState extends State<MainPage> {
                     ])
               : MobileLayout(
                   tables: value.tables,
-                  onCreateNewTable: onCreateNewTable,
+                  onDeleteTable: refreshData,
+                  onCreateNewTable: refreshData,
                 ),
         ),
       ),
@@ -191,7 +193,7 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  void onCreateNewTable() async {
+  void refreshData() async {
     var results = await LocalDb.instance.queryAllTables();
     setState(() {
       databaseModel.onDatabaseChange(results);

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
@@ -8,6 +9,7 @@ class TableList extends StatelessWidget {
   final List<TableInfo>? tables;
   final Function(TableInfo) onTap;
   final Function() onCreateNewTable;
+  final Function() onDeleteTable;
 
   final bool expandable;
 
@@ -16,7 +18,8 @@ class TableList extends StatelessWidget {
       this.tables,
       required this.expandable,
       required this.onTap,
-      required this.onCreateNewTable})
+      required this.onCreateNewTable,
+      required this.onDeleteTable})
       : super(key: key);
 
   @override
@@ -25,8 +28,9 @@ class TableList extends StatelessWidget {
         ? Container(height: 200)
         : Stack(
             children: [
-              ListView(
-                  children: [for (var info in tables!) _buildTableItem(info)]),
+              ListView(children: [
+                for (var info in tables!) _buildTableItem(context, info)
+              ]),
               if (LocalDb.instance.db != null)
                 Positioned(
                     right: 10,
@@ -58,13 +62,17 @@ class TableList extends StatelessWidget {
           );
   }
 
-  Widget _buildTableItem(TableInfo bean) {
+  Widget _buildTableItem(BuildContext context, TableInfo bean) {
     return InkWell(
       onTap: () async {
         if (expandable) {
           bean.expanded = !bean.expanded;
         }
         onTap(bean);
+      },
+      onLongPress: () {
+        showDeleteDialog(context, bean.tableName)
+            .then((value) => onDeleteTable());
       },
       child: Container(
         alignment: Alignment.centerLeft,
@@ -136,5 +144,35 @@ class TableList extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future showDeleteDialog(BuildContext context, String tableName) {
+    return showCupertinoDialog(
+        context: context,
+        builder: ((context) {
+          return CupertinoAlertDialog(
+            content: Text(
+              '确定删除$tableName表吗？',
+              style: const TextStyle(fontSize: 18),
+            ),
+            actions: [
+              CupertinoButton(
+                  child: const Text(
+                    "删除",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onPressed: () {
+                    LocalDb.instance
+                        .delateTable(tableName)
+                        .then((value) => Navigator.pop(context));
+                  }),
+              CupertinoButton(
+                  child: const Text("取消"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  })
+            ],
+          );
+        }));
   }
 }

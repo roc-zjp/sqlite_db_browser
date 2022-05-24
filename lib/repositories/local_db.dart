@@ -26,12 +26,16 @@ class LocalDb {
     _databasePath = databasePath;
     sqfliteFfiInit();
     var databaseFactory = databaseFactoryFfi;
-    var options = OpenDatabaseOptions(version:1,onCreate: (Database db, int version) {
-      logger.d("ondatabase create");
-    }, onOpen: (db) {
-      logger.d("ondatabase open");
-    });
-    _database = await databaseFactory.openDatabase(databasePath,options: options);
+    var options = OpenDatabaseOptions(
+        version: 1,
+        onCreate: (Database db, int version) {
+          logger.d("ondatabase create");
+        },
+        onOpen: (db) {
+          logger.d("ondatabase open");
+        });
+    _database =
+        await databaseFactory.openDatabase(databasePath, options: options);
     logger.d("数据库初始化完成");
   }
 
@@ -114,6 +118,15 @@ class LocalDb {
 
   Future<int> insert(String tableName, Map<String, Object?> map) async {
     int result = await db!.insert(tableName, map);
+    logger.d("result=$result");
+    return result;
+  }
+
+  Future<bool> delateTable(String tableName) async {
+    bool result = await db!
+        .execute("DROP TABLE $tableName")
+        .then((value) => true)
+        .onError((error, stackTrace) => false);
     logger.d("result=$result");
     return result;
   }
