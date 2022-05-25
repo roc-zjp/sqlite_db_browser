@@ -61,7 +61,7 @@ class _MainPageState extends State<MainPage> {
             child: IconButton(
                 tooltip: "打开数据库",
                 onPressed: () {
-                  onOpenDatabase();
+                  openDatabase();
                 },
                 icon: Image.asset("assets/file-open.png")),
           ),
@@ -120,6 +120,16 @@ class _MainPageState extends State<MainPage> {
                         ),
                       ]),
                       PlatformMenu(label: "新建", menus: [
+                        PlatformMenuItemGroup(
+                          members: <MenuItem>[
+                            PlatformMenuItem(
+                              label: '打开数据库',
+                              onSelected: () {
+                                openDatabase();
+                              },
+                            )
+                          ],
+                        ),
                         PlatformMenuItemGroup(
                           members: <MenuItem>[
                             PlatformMenuItem(
@@ -200,7 +210,7 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  void onOpenDatabase() async {
+  void openDatabase() async {
     var file = await pickFile();
     if (file == null) {
       return;

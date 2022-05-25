@@ -28,17 +28,20 @@ class TableList extends StatelessWidget {
         ? Container(height: 200)
         : Stack(
             children: [
-              ListView(children: [
-                for (var info in tables!) _buildTableItem(context, info)
-              ]),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 50),
+                child: ListView(children: [
+                  for (var info in tables!) _buildTableItem(context, info)
+                ]),
+              ),
               if (LocalDb.instance.db != null)
                 Positioned(
                     right: 10,
                     left: 10,
-                    bottom: 10,
+                    bottom: 5,
                     child: OutlinedButton(
                         style: TextButton.styleFrom(
-                            backgroundColor: Colors.amber,
+                            backgroundColor: Theme.of(context).primaryColor,
                             primary: Colors.white,
                             shape: const RoundedRectangleBorder(
                                 borderRadius:
@@ -52,10 +55,13 @@ class TableList extends StatelessWidget {
                         },
                         child: const SizedBox(
                           width: double.infinity,
-                          child: Text(
-                            "新建表",
-                            style: TextStyle(fontSize: 20),
-                            textAlign: TextAlign.center,
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Text(
+                              "新建表",
+                              style: TextStyle(fontSize: 20),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         )))
             ],
@@ -139,7 +145,11 @@ class TableList extends StatelessWidget {
                           ))
                       .toList(),
                 ),
-              )
+              ),
+            const Divider(
+              height: 1,
+              color: Colors.grey,
+            )
           ],
         ),
       ),

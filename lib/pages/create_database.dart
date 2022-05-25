@@ -18,7 +18,7 @@ class NewDatabasePage extends StatefulWidget {
 
 class _NewDatabasePageState extends State<NewDatabasePage> {
   final tableColumnInfos = List<ColumnInfo>.empty(growable: true);
-  static const double typeWidth = 90.0;
+  static const double typeWidth = 100.0;
   static const double itemWidth = 40.0;
 
   @override
