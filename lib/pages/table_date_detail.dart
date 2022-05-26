@@ -6,6 +6,8 @@ import 'package:sqlite_db_browser/common/consts.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
 
+import '../generated/l10n.dart';
+
 class TableDetailPage extends StatefulWidget {
   final TableInfo bean;
 
@@ -119,7 +121,7 @@ class TableDetailState extends State<TableDetailPage> {
                             Navigator.of(context).pop();
                           },
                           child: TextButton(
-                            child: const Text('取消'),
+                            child: Text(S.current.cancel),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
@@ -128,7 +130,7 @@ class TableDetailState extends State<TableDetailPage> {
                           onPressed: () {
                             updateOrInsertData(bean, map, update);
                           },
-                          child: const Text("确定"))
+                          child: Text(S.current.sure))
                     ],
                   )
                 ],
@@ -149,7 +151,7 @@ class TableDetailState extends State<TableDetailPage> {
   void deleteDatas(String tableName, String primaryKey, List list) {
     LocalDb.instance
         .deleteAllByPrimaryKeys(tableName, primaryKey, List.from(list))
-        .then((value) => EasyLoading.showToast('成功删除$value条数据')
+        .then((value) => EasyLoading.showToast(S.current.delete_success(value))
             .then((value) => refreshDatas()));
   }
 
@@ -162,16 +164,16 @@ class TableDetailState extends State<TableDetailPage> {
         Navigator.of(context).pop();
       }).onError((error, stackTrace) {
         logger.e("on error:${error.toString()}");
-        EasyLoading.showError("添加数据失败")
+        EasyLoading.showError(S.current.add_data_fail)
             .then((value) => Navigator.of(context).pop());
       });
     } else {
       LocalDb.instance.insert(bean.tableName, map).then((value) {
-        EasyLoading.showToast('成功添加一条信息，ID为$value')
+        EasyLoading.showToast(S.current.add_data_success(value))
             .then((value) => Navigator.of(context).pop());
       }).onError((error, stackTrace) {
         logger.e("on error:${error.toString()}");
-        EasyLoading.showError("添加数据失败")
+        EasyLoading.showError(S.current.add_data_fail)
             .then((value) => Navigator.of(context).pop());
       });
     }

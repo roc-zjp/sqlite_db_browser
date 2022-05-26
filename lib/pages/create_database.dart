@@ -9,6 +9,8 @@ import 'package:sqlite_db_browser/common/edit_dialog.dart';
 import 'package:sqlite_db_browser/model/column_info.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
 
+import '../generated/l10n.dart';
+
 class NewDatabasePage extends StatefulWidget {
   const NewDatabasePage({Key? key}) : super(key: key);
 
@@ -31,7 +33,7 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("新建数据库"),
+        title: Text(S.current.new_database),
         actions: [
           IconButton(
               onPressed: () {
@@ -81,8 +83,8 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
               padding:
                   const EdgeInsets.only(left: 5, top: 10, bottom: 10, right: 5),
               child: TextField(
-                decoration: const InputDecoration(
-                    border: OutlineInputBorder(), labelText: "名称"),
+                decoration:  InputDecoration(
+                    border: const OutlineInputBorder(), labelText: S.current.name),
                 controller: controller,
                 onChanged: (value) {
                   setState(() {
@@ -174,8 +176,8 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
         barrierDismissible: false,
         builder: ((context) {
           return EditDialog(
-            labelText: "表名",
-            hintText: "请输入表名",
+            labelText: S.current.name,
+            hintText: S.current.input_name_hint,
           );
         })).then((value) {
       if (value == null || value.isEmpty) {
@@ -203,7 +205,7 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
       if (value) {
         Navigator.of(context).pop();
       } else {
-        EasyLoading.showToast("新建数据库失败");
+        EasyLoading.showToast(S.current.create_database_fail);
       }
     });
   }
@@ -228,43 +230,43 @@ class _NewDatabasePageState extends State<NewDatabasePage> {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: Row(
-        children: const [
+        children:  [
           Expanded(
               flex: 1,
               child: Text(
-                "名称",
+                S.current.name,
               )),
           SizedBox(
             width: typeWidth,
             child: Text(
-              "类型",
+              S.current.type,
             ),
           ),
           SizedBox(
             width: itemWidth,
             child: Text(
-              "非空",
+              S.current.not_null,
               textAlign: TextAlign.center,
             ),
           ),
           SizedBox(
             width: itemWidth,
             child: Text(
-              "主键",
+              S.current.primary_key,
               textAlign: TextAlign.center,
             ),
           ),
           SizedBox(
             width: itemWidth,
             child: Text(
-              "唯一",
+              S.current.unique,
               textAlign: TextAlign.center,
             ),
           ),
           SizedBox(
             width: itemWidth,
             child: Text(
-              "自增",
+              S.current.auto_increment,
               textAlign: TextAlign.center,
             ),
           ),

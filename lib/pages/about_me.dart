@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../generated/l10n.dart';
+
 class AboutPage extends StatelessWidget {
   const AboutPage({Key? key}) : super(key: key);
 
@@ -8,7 +10,7 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("关于我"),
+        title: Text(S.current.about),
       ),
       body: ListView(children: [
         SizedBox(
@@ -29,7 +31,9 @@ class AboutPage extends StatelessWidget {
                     onTap: () async {
                       var _url =
                           Uri.parse('https://juejin.cn/user/272334611820622');
-                      if (!await launchUrl(_url))throw 'Could not launch $_url';
+                      if (!await launchUrl(_url)) {
+                        throw 'Could not launch $_url';
+                      }
                     },
                     child: _buildItem("assets/juejin.png", "掘金"),
                   )),
@@ -50,18 +54,18 @@ class AboutPage extends StatelessWidget {
             ],
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.only(left: 20),
+        Padding(
+          padding: const EdgeInsets.only(left: 20),
           child: Text(
-            "天涯浪子",
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            S.current.author_name,
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.only(left: 20, top: 10),
+        Padding(
+          padding: const EdgeInsets.only(left: 20, top: 10),
           child: Text(
-            "技术改变生活",
-            style: TextStyle(color: Colors.grey, fontSize: 20),
+            S.current.slogan,
+            style: const TextStyle(color: Colors.grey, fontSize: 20),
           ),
         ),
         Column(
@@ -69,9 +73,9 @@ class AboutPage extends StatelessWidget {
             Image.asset(
               "assets/wechat.jpg",
             ),
-            const Text(
-              "我的微信",
-              style: TextStyle(fontSize: 20),
+            Text(
+              S.current.my_wechat,
+              style: const TextStyle(fontSize: 20),
             )
           ],
         ),

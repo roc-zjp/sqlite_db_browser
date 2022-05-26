@@ -42,6 +42,9 @@ dependencies:
   url_launcher: ^6.1.2
   provider: ^6.0.0
   sqlite3_flutter_libs: ^0.5.7
+  intl: ^0.17.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -103,3 +106,5 @@ flutter:
     - assets/wave.jpg
     - assets/file-open.png
     - assets/new_file.png
+flutter_intl:
+  enabled: true

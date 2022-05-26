@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
 
+import '../generated/l10n.dart';
 import 'create_database.dart';
 
 class TableList extends StatelessWidget {
@@ -53,13 +54,13 @@ class TableList extends StatelessWidget {
                                       const NewDatabasePage()))
                               .then((value) => onCreateNewTable());
                         },
-                        child: const SizedBox(
+                        child:  SizedBox(
                           width: double.infinity,
                           child: Padding(
-                            padding: EdgeInsets.all(5),
+                            padding: const EdgeInsets.all(5),
                             child: Text(
-                              "新建表",
-                              style: TextStyle(fontSize: 20),
+                              S.current.new_table,
+                              style: const TextStyle(fontSize: 20),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -162,14 +163,14 @@ class TableList extends StatelessWidget {
         builder: ((context) {
           return CupertinoAlertDialog(
             content: Text(
-              '确定删除$tableName表吗？',
+              S.current.delete_table_tip(tableName),
               style: const TextStyle(fontSize: 18),
             ),
             actions: [
               CupertinoButton(
-                  child: const Text(
-                    "删除",
-                    style: TextStyle(color: Colors.red),
+                  child:  Text(
+                    S.current.delete,
+                    style: const TextStyle(color: Colors.red),
                   ),
                   onPressed: () {
                     LocalDb.instance
@@ -177,7 +178,7 @@ class TableList extends StatelessWidget {
                         .then((value) => Navigator.pop(context));
                   }),
               CupertinoButton(
-                  child: const Text("取消"),
+                  child:  Text(S.current.cancel),
                   onPressed: () {
                     Navigator.pop(context);
                   })

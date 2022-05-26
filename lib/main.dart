@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sqlite_db_browser/pages/about_me.dart';
@@ -16,6 +17,7 @@ import 'package:sqlite_db_browser/repositories/local_db.dart';
 
 import 'common/consts.dart';
 import 'common/edit_dialog.dart';
+import 'generated/l10n.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,6 +32,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: APP_NAME,
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -59,7 +67,7 @@ class _MainPageState extends State<MainPage> {
           MouseRegion(
             cursor: SystemMouseCursors.click,
             child: IconButton(
-                tooltip: "打开数据库",
+                tooltip: S.of(context).app_name,
                 onPressed: () {
                   openDatabase();
                 },
@@ -68,7 +76,7 @@ class _MainPageState extends State<MainPage> {
           MouseRegion(
             cursor: SystemMouseCursors.click,
             child: IconButton(
-                tooltip: "新建数据库",
+                tooltip: S.current.new_database,
                 onPressed: () {
                   createDatabase();
                 },
@@ -98,7 +106,7 @@ class _MainPageState extends State<MainPage> {
                         PlatformMenuItemGroup(
                           members: <MenuItem>[
                             PlatformMenuItem(
-                              label: 'About',
+                              label: S.current.about,
                               onSelected: () {
                                 Navigator.of(context)
                                     .push(MaterialPageRoute(builder: (context) {
@@ -111,7 +119,7 @@ class _MainPageState extends State<MainPage> {
                         PlatformMenuItemGroup(
                           members: <MenuItem>[
                             PlatformMenuItem(
-                              label: 'Quick Sqlite Browser',
+                              label: S.current.quick,
                               onSelected: () {
                                 exit(0);
                               },
@@ -119,11 +127,11 @@ class _MainPageState extends State<MainPage> {
                           ],
                         ),
                       ]),
-                      PlatformMenu(label: "新建", menus: [
+                      PlatformMenu(label: S.current.new_file, menus: [
                         PlatformMenuItemGroup(
                           members: <MenuItem>[
                             PlatformMenuItem(
-                              label: '打开数据库',
+                              label: S.current.open_database,
                               onSelected: () {
                                 openDatabase();
                               },
@@ -133,7 +141,7 @@ class _MainPageState extends State<MainPage> {
                         PlatformMenuItemGroup(
                           members: <MenuItem>[
                             PlatformMenuItem(
-                              label: '新建数据库',
+                              label: S.current.new_database,
                               onSelected: () {
                                 createDatabase();
                               },
@@ -143,7 +151,7 @@ class _MainPageState extends State<MainPage> {
                         PlatformMenuItemGroup(
                           members: <MenuItem>[
                             PlatformMenuItem(
-                              label: '新建表',
+                              label: S.current.new_table,
                               onSelected: () {
                                 if (LocalDb.instance.db != null) {
                                   Navigator.of(context)
@@ -174,12 +182,12 @@ class _MainPageState extends State<MainPage> {
         barrierDismissible: false,
         builder: ((context) {
           return EditDialog(
-            labelText: "数据库名称",
-            hintText: "请输入数据库名称",
+            labelText: S.current.database_name,
+            hintText: S.current.input_database_name_tip,
           );
         })).then((value) async {
       if (value == null || value.isEmpty) {
-        EasyLoading.showToast("请输入数据库名称");
+        EasyLoading.showToast(S.current.input_database_name_tip);
         return;
       }
       logger.d("数据库名称$value");
@@ -192,7 +200,7 @@ class _MainPageState extends State<MainPage> {
 
       var exists = await file.exists();
       if (exists) {
-        EasyLoading.showToast("数据库创建失败，数据库已存在！");
+        EasyLoading.showToast(S.current.create_database_fail_exist_tip);
         return;
       }
       await LocalDb.instance.initDb(dbPath);
