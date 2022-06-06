@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
         S.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
       ],
       supportedLocales: S.delegate.supportedLocales,
       theme: ThemeData(
@@ -91,81 +92,7 @@ class _MainPageState extends State<MainPage> {
                   Platform.isMacOS ||
                   Platform.isLinux ||
                   Platform.isWindows)
-              ? PlatformMenuBar(
-                  body: DesktopLayout(
-                    tables: value.tables,
-                    selectedTableInfo: value.selectedTableInfo,
-                    onTableChange: (info) {
-                      databaseModel.onTableSelected(info);
-                    },
-                    onDeleteTable: refreshData,
-                    onCreateNewTable: refreshData,
-                  ),
-                  menus: [
-                      PlatformMenu(label: APP_NAME, menus: [
-                        PlatformMenuItemGroup(
-                          members: <MenuItem>[
-                            PlatformMenuItem(
-                              label: S.current.about,
-                              onSelected: () {
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(builder: (context) {
-                                  return const AboutPage();
-                                }));
-                              },
-                            )
-                          ],
-                        ),
-                        PlatformMenuItemGroup(
-                          members: <MenuItem>[
-                            PlatformMenuItem(
-                              label: S.current.quick,
-                              onSelected: () {
-                                exit(0);
-                              },
-                            )
-                          ],
-                        ),
-                      ]),
-                      PlatformMenu(label: S.current.new_file, menus: [
-                        PlatformMenuItemGroup(
-                          members: <MenuItem>[
-                            PlatformMenuItem(
-                              label: S.current.open_database,
-                              onSelected: () {
-                                openDatabase();
-                              },
-                            )
-                          ],
-                        ),
-                        PlatformMenuItemGroup(
-                          members: <MenuItem>[
-                            PlatformMenuItem(
-                              label: S.current.new_database,
-                              onSelected: () {
-                                createDatabase();
-                              },
-                            )
-                          ],
-                        ),
-                        PlatformMenuItemGroup(
-                          members: <MenuItem>[
-                            PlatformMenuItem(
-                              label: S.current.new_table,
-                              onSelected: () {
-                                if (LocalDb.instance.db != null) {
-                                  Navigator.of(context)
-                                      .push(MaterialPageRoute(
-                                          builder: (context) =>
-                                              const NewDatabasePage()))
-                                      .then((value) => refreshData());
-                                }
-                              },
-                            )
-                          ],
-                        ),
-                      ])
-                    ])
+              ? _buildDesktopLayout(value)
               : MobileLayout(
                   tables: value.tables,
                   onDeleteTable: refreshData,
@@ -174,6 +101,84 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildDesktopLayout(DataBaseViewModel value) {
+    return PlatformMenuBar(
+        body: DesktopLayout(
+          tables: value.tables,
+          selectedTableInfo: value.selectedTableInfo,
+          onTableChange: (info) {
+            databaseModel.onTableSelected(info);
+          },
+          onDeleteTable: refreshData,
+          onCreateNewTable: refreshData,
+          refreshData: refreshData,
+        ),
+        menus: [
+          PlatformMenu(label: APP_NAME, menus: [
+            PlatformMenuItemGroup(
+              members: <MenuItem>[
+                PlatformMenuItem(
+                  label: S.current.about,
+                  onSelected: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return const AboutPage();
+                    }));
+                  },
+                )
+              ],
+            ),
+            PlatformMenuItemGroup(
+              members: <MenuItem>[
+                PlatformMenuItem(
+                  label: S.current.quick,
+                  onSelected: () {
+                    exit(0);
+                  },
+                )
+              ],
+            ),
+          ]),
+          PlatformMenu(label: S.current.new_file, menus: [
+            PlatformMenuItemGroup(
+              members: <MenuItem>[
+                PlatformMenuItem(
+                  label: S.current.open_database,
+                  onSelected: () {
+                    openDatabase();
+                  },
+                )
+              ],
+            ),
+            PlatformMenuItemGroup(
+              members: <MenuItem>[
+                PlatformMenuItem(
+                  label: S.current.new_database,
+                  onSelected: () {
+                    createDatabase();
+                  },
+                )
+              ],
+            ),
+            PlatformMenuItemGroup(
+              members: <MenuItem>[
+                PlatformMenuItem(
+                  label: S.current.new_table,
+                  onSelected: () {
+                    if (LocalDb.instance.db != null) {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(
+                              builder: (context) => const NewDatabasePage()))
+                          .then((value) => refreshData());
+                    }
+                  },
+                )
+              ],
+            ),
+          ])
+        ]);
   }
 
   Future createDatabase() {

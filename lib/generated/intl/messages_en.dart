@@ -40,6 +40,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Create database fail"),
         "create_database_fail_exist_tip": MessageLookupByLibrary.simpleMessage(
             "Create Database Fail,Database exist!"),
+        "data": MessageLookupByLibrary.simpleMessage("Data"),
         "database_name": MessageLookupByLibrary.simpleMessage("Database Name"),
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "delete_success": m1,

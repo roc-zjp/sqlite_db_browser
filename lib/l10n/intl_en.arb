@@ -29,5 +29,6 @@
   "cancel": "cancel",
   "sure": "sure",
   "delete_table_tip": "Are you sure to drop the {tableName} table？",
-  "delete": "Delete"
+  "delete": "Delete",
+  "data": "Data"
 }

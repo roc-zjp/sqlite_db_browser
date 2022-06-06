@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sqlite_db_browser/common/consts.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
 import 'package:sqlite_db_browser/repositories/table_baen.dart';
 
@@ -54,7 +55,7 @@ class TableList extends StatelessWidget {
                                       const NewDatabasePage()))
                               .then((value) => onCreateNewTable());
                         },
-                        child:  SizedBox(
+                        child: SizedBox(
                           width: double.infinity,
                           child: Padding(
                             padding: const EdgeInsets.all(5),
@@ -78,6 +79,7 @@ class TableList extends StatelessWidget {
         onTap(bean);
       },
       onLongPress: () {
+        logger.d("删除弹窗！");
         showDeleteDialog(context, bean.tableName)
             .then((value) => onDeleteTable());
       },
@@ -168,7 +170,7 @@ class TableList extends StatelessWidget {
             ),
             actions: [
               CupertinoButton(
-                  child:  Text(
+                  child: Text(
                     S.current.delete,
                     style: const TextStyle(color: Colors.red),
                   ),
@@ -178,7 +180,7 @@ class TableList extends StatelessWidget {
                         .then((value) => Navigator.pop(context));
                   }),
               CupertinoButton(
-                  child:  Text(S.current.cancel),
+                  child: Text(S.current.cancel),
                   onPressed: () {
                     Navigator.pop(context);
                   })

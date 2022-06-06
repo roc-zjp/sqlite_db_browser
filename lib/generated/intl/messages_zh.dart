@@ -38,6 +38,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "create_database_fail": MessageLookupByLibrary.simpleMessage("新建数据库失败"),
         "create_database_fail_exist_tip":
             MessageLookupByLibrary.simpleMessage("数据库创建失败，数据库已存在！"),
+        "data": MessageLookupByLibrary.simpleMessage("数据"),
         "database_name": MessageLookupByLibrary.simpleMessage("数据库名称"),
         "delete": MessageLookupByLibrary.simpleMessage("删除"),
         "delete_success": m1,
