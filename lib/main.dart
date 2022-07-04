@@ -195,8 +195,7 @@ class _MainPageState extends State<MainPage> {
         EasyLoading.showToast(S.current.input_database_name_tip);
         return;
       }
-      logger.d("数据库名称$value");
-
+      
       Directory appDocDir = await getApplicationDocumentsDirectory();
       String appDocPath = appDocDir.path;
 

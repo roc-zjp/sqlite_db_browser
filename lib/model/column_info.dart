@@ -6,6 +6,7 @@ class ColumnInfo {
   bool primaryKey = false;
   bool unique = false;
   bool autoIncrement = false;
+  
   ColumnInfo(
       {this.columnName = "", this.type = "TEXT", this.defaultValue = ""});
 

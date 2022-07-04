@@ -52,13 +52,14 @@ class LocalDb {
     for (var element in results) {
       logger.d(element.toString());
       String tableName = element['name'].toString();
-      var info = await queryTableInfo(tableName);
+      String sql = element['sql'].toString();
+      var info = await queryTableInfo(tableName, sql: sql);
       tables.add(info);
     }
     return tables;
   }
 
-  Future<TableInfo> queryTableInfo(String tableName) async {
+  Future<TableInfo> queryTableInfo(String tableName, {String sql = ""}) async {
     List<Map<String, Object?>> results =
         await db!.rawQuery("PRAGMA table_info ([$tableName])");
     List<ColumnInfo> columns = List.empty(growable: true);
@@ -74,8 +75,9 @@ class LocalDb {
           columnName: element['name'].toString(),
           type: element['type'].toString(),
           defaultValue: element['dflt_value'].toString()));
-      info.columns = columns;
     }
+    info.columns = columns;
+    info.sql = sql;
     return info;
   }
 

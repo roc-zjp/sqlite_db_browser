@@ -5,6 +5,7 @@ class TableInfo {
   final String tableName;
   String? primaryKey;
   bool expanded = false;
+  String sql;
 
-  TableInfo(this.tableName);
+  TableInfo(this.tableName, {this.sql = ''});
 }

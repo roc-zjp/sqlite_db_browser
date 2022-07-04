@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sqlite_db_browser/common/consts.dart';
 import 'package:sqlite_db_browser/repositories/local_db.dart';
@@ -65,7 +66,13 @@ class TableDetailState extends State<TableDetailPage> {
                   showEditDialog(widget.bean, null, update: false)
                       .then((value) => refreshDatas());
                 },
-                icon: const Icon(Icons.add))
+                icon: const Icon(Icons.add)),
+            IconButton(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: info.sql));
+                  EasyLoading.showToast("表结构复制成功");
+                },
+                icon: Image.asset("assets/export.png"))
           ],
           header: const Text("数据"),
           availableRowsPerPage: const [10, 20, 50, 100],
@@ -201,6 +208,8 @@ class TableDetailState extends State<TableDetailPage> {
                 onChanged: ((value) {
                   func(key, value);
                 }),
+                minLines: 1,
+                maxLines: 100,
                 controller: controller,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),

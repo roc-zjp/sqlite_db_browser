@@ -109,6 +109,7 @@ flutter:
     - assets/data.png
     - assets/sql.png
     - assets/test.png
+    - assets/export.png
 
 
 flutter_intl:
